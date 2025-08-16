@@ -6,6 +6,7 @@ project(logger_library VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+cmake_policy(SET CMP0079 NEW)
 
 add_library(app_lib 
     lib/app.cpp

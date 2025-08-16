@@ -23,5 +23,7 @@ class FileLogger : public LoggerBase {
    private:
     std::string createLogString(const std::string& message, LogLevel loglevel, time_t time);
 
+    mutable std::mutex mut_;
+    std::string file_name_;
     std::ofstream file_stream_;
 };

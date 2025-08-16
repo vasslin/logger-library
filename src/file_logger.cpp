@@ -1,7 +1,7 @@
 #include "../include/loggerlib/file_logger.h"
 
 FileLogger::FileLogger(const std::string& file_name, LogLevel default_loglevel)
-    : LoggerBase(file_name, default_loglevel) {
+    : LoggerBase(default_loglevel), file_name_(file_name) {
     file_stream_ = std::ofstream(file_name_, std::ios::app);
 }
 

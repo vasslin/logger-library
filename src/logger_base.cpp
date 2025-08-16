@@ -42,8 +42,7 @@ std::istream& operator>>(std::istream& in, LogLevel& log) {
     return in;
 }
 
-LoggerBase::LoggerBase(const std::string& file_name, LogLevel default_loglevel)
-    : file_name_(file_name), default_loglevel_(default_loglevel) {}
+LoggerBase::LoggerBase(LogLevel level) : default_loglevel_(level) {}
 
 std::string LoggerBase::levelToString(LogLevel level) {
     switch (level) {

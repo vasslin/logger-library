@@ -23,11 +23,6 @@ target_include_directories(logger_library
         $<INSTALL_INTERFACE:include>
 )
 
-foreach(EXAMPLE_SOURCE_FILE ${EXAMPLE_SOURCE_FILES})
-    get_filename_component(EXAMPLE_NAME ${EXAMPLE_SOURCE_FILE} NAME_WE)
-    add_executable(${EXAMPLE_NAME} ${EXAMPLE_SOURCE_FILE})
-    target_link_libraries(${EXAMPLE_NAME} PRIVATE logger_library)
-endforeach()
 
 install(TARGETS logger_library
     LIBRARY DESTINATION lib
@@ -39,6 +34,5 @@ install(DIRECTORY include/
     DESTINATION include
 )
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/app/CMakeLists.txt")
-    add_subdirectory(app)
-endif()
+add_subdirectory(app)
+add_subdirectory(socket_statistics)

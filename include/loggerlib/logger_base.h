@@ -25,7 +25,8 @@ struct LogConfig {
 
 class LoggerBase {
    public:
-    LoggerBase(const std::string& file_name, LogLevel default_loglevel);
+    LoggerBase() = default;
+    LoggerBase(LogLevel level);
     virtual ~LoggerBase() = default;  // ??
 
     virtual bool writeLog(const LogConfig& log) = 0;
@@ -33,8 +34,7 @@ class LoggerBase {
 
    protected:
     std::string levelToString(LogLevel level);
+    LogLevel default_loglevel_ = LogLevel::TRACE;
 
-    mutable std::mutex mut_;
-    LogLevel default_loglevel_;
-    std::string file_name_;
+    
 };
