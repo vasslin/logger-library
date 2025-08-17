@@ -8,6 +8,7 @@
 enum class LogLevel : int { UNDEFINED, TRACE, DEBUG, INFO, WARN, ERROR, FATAL };
 
 std::istream& operator>>(std::istream& in, LogLevel& log);
+std::string levelToString(LogLevel level);
 
 struct LogConfig {
     LogConfig() = default;
@@ -27,14 +28,13 @@ class LoggerBase {
    public:
     LoggerBase() = default;
     LoggerBase(LogLevel level);
-    virtual ~LoggerBase() = default;  // ??
+    virtual ~LoggerBase() = default; 
+
+    virtual bool isValid() const;
 
     virtual bool writeLog(const LogConfig& log) = 0;
     void setDefaultLevel(LogLevel level);
 
    protected:
-    std::string levelToString(LogLevel level);
     LogLevel default_loglevel_ = LogLevel::TRACE;
-
-    
 };

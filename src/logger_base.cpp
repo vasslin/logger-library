@@ -44,7 +44,7 @@ std::istream& operator>>(std::istream& in, LogLevel& log) {
 
 LoggerBase::LoggerBase(LogLevel level) : default_loglevel_(level) {}
 
-std::string LoggerBase::levelToString(LogLevel level) {
+std::string levelToString(LogLevel level) {
     switch (level) {
         case LogLevel::TRACE:
             return std::string{"Trace"};

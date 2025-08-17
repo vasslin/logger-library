@@ -1,8 +1,5 @@
 #include "ts_queue.h"
 
-// template <typename T>
-// tsQueue<T>::tsQueue(T&& limiter) : limiter_(std::move(limiter)) {}
-
 template <typename T>
 tsQueue<T>::tsQueue(const T& limiter) : limiter_(limiter) {}
 

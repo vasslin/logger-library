@@ -5,9 +5,6 @@
 using namespace app;
 
 int main() {
-    // tsQueue<int> ts_queue{-1};
-    // std::cout << 1 << std::endl;
-
     std::string file_name = "logs_file.txt";
     LogLevel level = LogLevel::INFO;
 

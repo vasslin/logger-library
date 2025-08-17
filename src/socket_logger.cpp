@@ -7,8 +7,14 @@ SocketLogger::SocketLogger(uint32_t ip, uint16_t port, LogLevel default_loglevel
     socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd_ < 0) {
         std::cerr << "Error in creating socket.\n";
+        socket_fd_ = -1;
         return;
     }
+
+    struct timeval tv;
+    tv.tv_sec = 30;  
+    tv.tv_usec = 0;
+    setsockopt(socket_fd_, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
@@ -26,13 +32,19 @@ SocketLogger::~SocketLogger() noexcept {
     }
 }
 
-// format: time level message
 bool SocketLogger::writeLog(const LogConfig& log) {
+    if (socket_fd_ < 0) {
+        return false;
+    }
     std::string message = createLogString(log);
-    send(socket_fd_, message.c_str(), sizeof(message.c_str()), 0);
+    if (send(socket_fd_, message.c_str(), message.size(), 0) < 0) {
+        std::cerr << "Error in sending log.\n";
+        return false;
+    }
     return true;
 }
 
+// format: time level message
 std::string SocketLogger::createLogString(const LogConfig& log) {
     return std::to_string(log.time) + " " + levelToString(log.level) + " " + log.message;
 }

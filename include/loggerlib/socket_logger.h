@@ -2,8 +2,6 @@
 
 #include "logger_base.h"
 
-#pragma once
-
 #include <netinet/in.h>
 #include <stdint.h>
 #include <sys/socket.h>
@@ -22,9 +20,6 @@ class SocketLogger : public LoggerBase {
     virtual ~SocketLogger() noexcept;
     SocketLogger(const SocketLogger& other) = delete;
     SocketLogger operator=(const SocketLogger& other) = delete;
-
-    // FileLogger(FileLogger&& other);
-    // FileLogger operator=(FileLogger&& other);
 
 
     bool writeLog(const LogConfig& log) override;

@@ -12,13 +12,10 @@ class FileLogger : public LoggerBase {
     FileLogger(const FileLogger& other) = delete;
     FileLogger operator=(const FileLogger& other) = delete;
 
-    // FileLogger(FileLogger&& other);
-    // FileLogger operator=(FileLogger&& other);
-
     ~FileLogger() = default;
 
     bool writeLog(const LogConfig& log) override;
-    bool isValid() const;
+    bool isValid() const override;
 
    private:
     std::string createLogString(const std::string& message, LogLevel loglevel, time_t time);
