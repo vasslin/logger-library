@@ -6,7 +6,7 @@ SocketLogServer::SocketLogServer(uint32_t ip, uint16_t port) : ip_(ip), port_(po
     struct sockaddr_in addr;
     int bytes_read;
 
-    listener_ = socket(AF_INET, SOCK_STREAM, port_);
+    listener_ = socket(AF_INET, SOCK_STREAM, 0);
     if (listener_ < 0) {
         std::cerr << "Error in creating server socket\n";
         return;
@@ -35,13 +35,13 @@ bool SocketLogServer::run(time_t time) {
     // for time statistic
     auto now = std::chrono::system_clock::now();
     time_t curr_time = std::chrono::system_clock::to_time_t(now);
-    tsCounter<time_t> last_diff_time = curr_time;
+    tsCounter<time_t> ts_last_diff_time = curr_time;
 
     // for count statistic
-    tsCounter<size_t> counter = 0;
+    tsCounter<size_t> ts_counter = 0;
     std::condition_variable count_condition;
 
-    auto get_func = [this, &stop, &last_diff_time, &counter, &count_condition]() mutable {
+    auto get_func = [this, &stop, &ts_last_diff_time, &ts_counter, &count_condition]() mutable {
         for (;;) {
             {
                 std::lock_guard<std::mutex> lk{mut_};
@@ -58,15 +58,19 @@ bool SocketLogServer::run(time_t time) {
                 return false;
             }
             auto bytes_read = recv(sock, buf, 1024, 0);
+            if (bytes_read <= 0) {
+                close(sock);
+                continue; 
+            }
             auto log = convertMsgToLogConfig(buf, bytes_read);
             if (log.level != LogLevel::UNDEFINED) {
                 stats_coll_.setLog(log);
 
                 // update settings for time/count statistics
                 auto now = std::chrono::system_clock::now();
-                last_diff_time.set(std::chrono::system_clock::to_time_t(now));
-                ++counter;
-                if (statistic_interval_cnt_ != 0 && counter.get() % statistic_interval_cnt_ == 0) {
+                ts_last_diff_time.set(std::chrono::system_clock::to_time_t(now));
+                ++ts_counter;
+                if (statistic_interval_cnt_ != 0 && ts_counter.get() % statistic_interval_cnt_ == 0) {
                     count_condition.notify_one();
                 }
             }
@@ -76,9 +80,10 @@ bool SocketLogServer::run(time_t time) {
         return true;
     };
 
-    auto print_time_func = [this, &stop, &curr_time, &last_diff_time]() mutable {
-        // засыпаем на statistic_interval_time_
-        // если curr_time - last_mod_time < statistic_interval_time_ --> выводим статистику
+    auto print_time_func = [this, &stop, &curr_time, &ts_last_diff_time,
+                            interval_time = statistic_interval_time_]() mutable {
+        // засыпаем на interval_time
+        // если curr_time - last_mod_time < interval_time --> выводим статистику
         // если stop -> выход из функции;
 
         time_t time_diff;
@@ -91,20 +96,20 @@ bool SocketLogServer::run(time_t time) {
 
                 auto now = std::chrono::system_clock::now();
                 curr_time = std::chrono::system_clock::to_time_t(now);
-                time_diff = curr_time - last_diff_time.get();
+                time_diff = curr_time - ts_last_diff_time.get();
             }
-            if (time_diff < statistic_interval_time_) {
+            if (time_diff < interval_time) {
                 stats_coll_.printStatistic();
             }
-            std::this_thread::sleep_for(std::chrono::seconds(statistic_interval_time_));
+            std::this_thread::sleep_for(std::chrono::seconds(interval_time));
         }
     };
 
-    auto print_cnt_func = [this, &stop, &counter, &count_condition]() mutable {
+    auto print_cnt_func = [this, &stop, &ts_counter, &count_condition]() mutable {
         for (;;) {
             std::unique_lock<std::mutex> lk{mut_};
-            count_condition.wait(lk, [this, &stop, &counter]() {
-                return stop || (statistic_interval_cnt_ != 0 && counter.get() % statistic_interval_cnt_ == 0);
+            count_condition.wait(lk, [this, &stop, &ts_counter]() {
+                return stop || (statistic_interval_cnt_ != 0 && ts_counter.get() % statistic_interval_cnt_ == 0);
             });
             if (stop) {
                 break;

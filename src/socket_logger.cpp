@@ -1,6 +1,6 @@
 #include "../include/loggerlib/socket_logger.h"
 
-SocketLogger::SocketLogger(uint32_t ip, uint16_t port, LogLevel default_loglevel) {
+SocketLogger::SocketLogger(uint32_t ip, uint16_t port, LogLevel default_loglevel) : LoggerBase(default_loglevel) {
     int sock;
     struct sockaddr_in addr;
 

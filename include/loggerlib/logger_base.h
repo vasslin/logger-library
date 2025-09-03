@@ -28,13 +28,13 @@ class LoggerBase {
    public:
     LoggerBase() = default;
     LoggerBase(LogLevel level);
-    virtual ~LoggerBase() = default; 
+    virtual ~LoggerBase(); 
 
-    virtual bool isValid() const;
+    virtual bool isValid() const = 0;
 
     virtual bool writeLog(const LogConfig& log) = 0;
     void setDefaultLevel(LogLevel level);
 
    protected:
-    LogLevel default_loglevel_ = LogLevel::TRACE;
+    LogLevel default_loglevel_ = LogLevel::INFO;
 };

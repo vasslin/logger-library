@@ -65,3 +65,5 @@ std::string levelToString(LogLevel level) {
 }
 
 void LoggerBase::setDefaultLevel(LogLevel level) { default_loglevel_ = level; }
+
+LoggerBase::~LoggerBase() {}
